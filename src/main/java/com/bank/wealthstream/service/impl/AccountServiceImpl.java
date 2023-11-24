@@ -9,7 +9,9 @@ import com.bank.wealthstream.service.mapper.AccountMapper;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.StreamSupport;
 
 @Service
 public class AccountServiceImpl implements AccountService {
@@ -41,6 +43,14 @@ public class AccountServiceImpl implements AccountService {
         }
 
         return accountMapper.accountToAccountDto(accountRepository.save(accountMapper.accountDtoToAccount(accountDto)));
+    }
+
+    @Override
+    public List<AccountDto> getAccountByIdentification(String identification) {
+        System.out.println("CEDULA "+ identification);
+        return accountRepository.getAccountByIdentification(identification).stream()
+                .map(accountMapper:: accountToAccountDto)
+                .collect(Collectors.toList());
     }
 
     private String accountGenerateNumber(String accountType) {

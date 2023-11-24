@@ -35,4 +35,8 @@ public class AccountMovementController {
         return new ResponseEntity<>(accountMovementService.makeTransfer(transferDto), HttpStatus.CREATED);
     }
 
+    @GetMapping("/get-movements-identification/{identification}")
+    public ResponseEntity<?> getMovementsByIdentification(@PathVariable String identification) {
+        return new ResponseEntity<>(accountMovementService.getAccountMovementByIdentification(identification), HttpStatus.OK);
+    }
 }

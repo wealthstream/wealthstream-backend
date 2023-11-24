@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -18,6 +19,9 @@ public interface AccountRepository extends JpaRepository<Account, String> {
             "WHERE C.idCus = ?1 AND A.accountNumber = ?2")
     Optional<Account> ifExistAccount(String idCus, String accountNumber);
 
-//    @Query("SELECT c from Customer c " + "JOIN Interaction i ON i.customer = c.idCli " + "WHERE i.callId = ?1 "
-//            + "ORDER BY i.date DESC limit 1")
+    @Query("SELECT A FROM Account A " +
+            "JOIN Customer C ON A.idCus = C.idCus " +
+            "JOIN Person P ON C.idCus = P.idPer " +
+            "WHERE P.identification = ?1")
+    List<Account> getAccountByIdentification(String identification);
 }

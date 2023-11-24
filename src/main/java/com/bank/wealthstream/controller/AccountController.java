@@ -21,4 +21,9 @@ public class AccountController {
     public ResponseEntity<?> createAccount(@RequestBody AccountDto accountDto) {
         return new ResponseEntity<>(accountService.createAccount(accountDto), HttpStatus.CREATED);
     }
+
+    @GetMapping("/get-account-identification/{identification}")
+    public ResponseEntity<?> getAccountByIdentification(@PathVariable String identification) {
+        return new ResponseEntity<>(accountService.getAccountByIdentification(identification), HttpStatus.OK);
+    }
 }

@@ -1,6 +1,7 @@
 package com.bank.wealthstream.service.impl;
 
 import com.bank.wealthstream.model.Account;
+import com.bank.wealthstream.model.AccountMovement;
 import com.bank.wealthstream.model.Customer;
 import com.bank.wealthstream.model.enums.AccountType;
 import com.bank.wealthstream.model.enums.TypeAccountMovement;
@@ -15,7 +16,10 @@ import com.bank.wealthstream.service.mapper.AccountMovementMapper;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 @Service
 public class AccountMovementServiceImpl implements AccountMovementService {
@@ -34,6 +38,13 @@ public class AccountMovementServiceImpl implements AccountMovementService {
         this.accountMovementMapper = accountMovementMapper;
         this.accountMovementRepository = accountMovementRepository;
         this.customerRepository = customerRepository;
+    }
+
+    @Override
+    public List<AccountMovementDto> getAccountMovementByIdentification(String identification) {
+        return accountMovementRepository.getAccountMovementsByIdentification(identification).stream()
+                .map(accountMovementMapper::accountMovementToAccountMovementDto)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -72,12 +83,18 @@ public class AccountMovementServiceImpl implements AccountMovementService {
         double initialBalance = account.getInitialBalance();
         double transactionValue = accountMovementDto.getValue();
 
+        boolean isValidAmount = false;
+
         if (isValidTransaction(accountType, initialBalance, transactionValue, transactionType)) {
-            updateAccountAndMovement(account, accountMovementDto, initialBalance, transactionValue, transactionType);
+            isValidAmount = updateAccountAndMovement(account, accountMovementDto, initialBalance, transactionValue, transactionType);
             accountMovementDto.setDate(LocalDateTime.now());
         }
 
         accountMovementDto.setMovementType(transactionType);
+
+        if (!isValidAmount) {
+            return null;
+        }
 
         return accountMovementMapper.accountMovementToAccountMovementDto(accountMovementRepository.save(accountMovementMapper.accountMovementDtoTAccountMovement(accountMovementDto)));
     }
@@ -87,23 +104,31 @@ public class AccountMovementServiceImpl implements AccountMovementService {
                 (initialBalance >= transactionValue && transactionType.trim().toUpperCase() != TypeAccountMovement.RETIRO.toString() || initialBalance >= 0);
     }
 
-    private void updateAccountAndMovement(Account account, AccountMovementDto accountMovementDto,
+    private boolean updateAccountAndMovement(Account account, AccountMovementDto accountMovementDto,
                                      double initialBalance, double transactionValue, String transactionType) {
         accountMovementDto.setIdAcc(accountMapper.accountToAccountDto(account));
         account.getIdCus().getIdPer().setIdentification(accountMovementDto.getIdAcc().getIdCus().getPerson().getIdentification());
 
         double newBalance = 0.0;
 
+        boolean isValid = true;
+
         if (transactionType.trim().toUpperCase().equals(TypeAccountMovement.DEPOSITO.toString())) {
             newBalance = initialBalance + transactionValue;
+
         }
 
         if (transactionType.trim().toUpperCase().equals(TypeAccountMovement.RETIRO.toString())){
-            newBalance = initialBalance - transactionValue;
+            if (account.getInitialBalance() >= accountMovementDto.getValue()) {
+                newBalance = initialBalance - transactionValue;
+            } else {
+                isValid = false;
+            }
         }
 
         account.setInitialBalance(newBalance);
         accountMovementDto.setValue(transactionValue);
         accountMovementDto.setBalance(newBalance);
+        return isValid;
     }
 }
