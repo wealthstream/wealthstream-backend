@@ -47,7 +47,6 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public List<AccountDto> getAccountByIdentification(String identification) {
-        System.out.println("CEDULA "+ identification);
         return accountRepository.getAccountByIdentification(identification).stream()
                 .map(accountMapper:: accountToAccountDto)
                 .collect(Collectors.toList());

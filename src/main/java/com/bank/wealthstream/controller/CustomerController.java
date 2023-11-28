@@ -22,6 +22,12 @@ public class CustomerController {
         return new ResponseEntity<>(customerService.createCustomer(customerDto), HttpStatus.CREATED);
     }
 
+    @PatchMapping("/update-customer")
+    @ResponseBody
+    public ResponseEntity<?> updateCustomer(@RequestBody CustomerDto customerDto) {
+        return new ResponseEntity<>(customerService.updateCustomer(customerDto), HttpStatus.OK);
+    }
+
     @GetMapping("/get-customer/{identification}")
     public ResponseEntity<?> getCustomerByIdentification(@PathVariable String identification) {
         return new ResponseEntity<>(customerService.getCustomerByIdentification(identification), HttpStatus.OK);

@@ -5,13 +5,16 @@ import com.bank.wealthstream.model.Customer;
 import com.bank.wealthstream.model.Person;
 import com.bank.wealthstream.repository.CustomerRepository;
 import com.bank.wealthstream.repository.PersonRepository;
+import com.bank.wealthstream.security.Encryption;
 import com.bank.wealthstream.service.CustomerService;
 import com.bank.wealthstream.service.PersonService;
 import com.bank.wealthstream.service.dto.CustomerDto;
+import com.bank.wealthstream.service.dto.LoginDto;
 import com.bank.wealthstream.service.dto.PersonDto;
 import com.bank.wealthstream.service.mapper.CustomerMapper;
 import com.bank.wealthstream.service.mapper.PersonMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -51,7 +54,22 @@ public class CustomerServiceImpl implements CustomerService {
 
         Person personSave = personRepository.save(person);
         customerDto.setIdCus(personSave.getIdPer());
+        customerDto.setPassword(Encryption.aesEncrypt(customerDto.getPassword(), false));
         customerDto.setPerson(null);
+
+        return customerMapper.customerToCustomerDto(customerRepository.save(customerMapper.customerDtoToCustomer(customerDto)));
+    }
+
+    @Override
+    public CustomerDto updateCustomer(CustomerDto customerDto) {
+         Person person = personMapper.personDtoToPerson(customerDto.getPerson());
+        if (!personRepository.findById(person.getIdPer()).isPresent()) {
+            return null;
+        }
+
+        Person personSave = personRepository.save(person);
+        customerDto.setIdCus(personSave.getIdPer());
+        customerDto.setPassword(Encryption.aesEncrypt(customerDto.getPassword(), false));
 
         return customerMapper.customerToCustomerDto(customerRepository.save(customerMapper.customerDtoToCustomer(customerDto)));
     }
@@ -73,5 +91,14 @@ public class CustomerServiceImpl implements CustomerService {
         return StreamSupport.stream(customerRepository.findAll().spliterator(), false)
                 .map(customerMapper::customerToCustomerDto)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public LoginDto logIn(LoginDto loginDto) {
+        Optional<Customer> optionalCustomer = customerRepository.getCredentials(loginDto.getEmail(),Encryption.aesEncrypt(loginDto.getPassword(), false));
+        if (optionalCustomer.isEmpty()) {
+            return null;
+        }
+        return loginDto;
     }
 }

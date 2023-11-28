@@ -18,4 +18,8 @@ public interface CustomerRepository extends JpaRepository<Customer, String> {
             "JOIN Person P ON C.idCus = P.idPer " +
             "WHERE P.identification=?1")
     Optional<Customer> getCustomerByIdentificationOptional(String identification);
+
+    @Query("SELECT C FROM Customer C " +
+            "WHERE C.email = ?1 AND C.password = ?2 AND C.state = true")
+    Optional<Customer> getCredentials(String email, String password);
 }

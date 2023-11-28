@@ -17,10 +17,6 @@ public class Person {
     @Column(name = "ID_PER", nullable = false,updatable = false)
     private String idPer;
 
-//    @OneToOne
-//    @JoinColumn(name = "ID_PER",nullable = false,foreignKey = @ForeignKey(name = "FK_CUSTOMER_PERSON"))
-//    private Customer customer;
-
     @Column(name = "NAME",nullable = false)
     private String name;
 
