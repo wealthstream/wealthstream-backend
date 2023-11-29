@@ -48,7 +48,9 @@ public class WebSecurityConfig {
 	SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 //		http.csrf(withDefaults()).authorizeHttpRequests().requestMatchers("/swagger-ui/**").permitAll();
 //		http.csrf(withDefaults()).authorizeHttpRequests().requestMatchers("/v3/**").permitAll();
-		http.csrf(withDefaults()).authorizeHttpRequests().requestMatchers("/api/login/log-in").permitAll();
+		http.csrf(withDefaults()).authorizeHttpRequests().requestMatchers("/api/auth/login").permitAll();
+		http.csrf(withDefaults()).authorizeHttpRequests().requestMatchers("/api/customer/**").permitAll();
+		http.csrf(withDefaults()).authorizeHttpRequests().requestMatchers("/api/account/create-account").permitAll();
 		http.csrf(AbstractHttpConfigurer::disable).authorizeHttpRequests().requestMatchers("/api/**").authenticated().and()
 				.exceptionHandling(handling -> handling.authenticationEntryPoint(jwtAEP))
 				.sessionManagement(management -> management.sessionCreationPolicy(SessionCreationPolicy.STATELESS));

@@ -34,7 +34,6 @@ public class LoginController {
 
         String accessToken = jwtTokenUtil.generateAccessToken(loginDto);
         AuthResponse response = new AuthResponse(loginDto.getEmail(), accessToken);
-
         return ResponseEntity.ok().body(response);
     }
 }

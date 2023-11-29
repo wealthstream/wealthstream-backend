@@ -56,8 +56,10 @@ public class CustomerServiceImpl implements CustomerService {
         customerDto.setIdCus(personSave.getIdPer());
         customerDto.setPassword(Encryption.aesEncrypt(customerDto.getPassword(), false));
         customerDto.setPerson(null);
-
-        return customerMapper.customerToCustomerDto(customerRepository.save(customerMapper.customerDtoToCustomer(customerDto)));
+        CustomerDto customer = customerMapper.customerToCustomerDto(customerRepository.save(customerMapper.customerDtoToCustomer(customerDto)));
+        customer.setPerson(personMapper.personToPersonDto(person));
+        
+        return customer;
     }
 
     @Override
